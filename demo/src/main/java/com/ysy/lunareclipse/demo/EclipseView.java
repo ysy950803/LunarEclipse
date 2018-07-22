@@ -22,6 +22,8 @@ public class EclipseView extends View {
     private int mWidth = 0;
     private int mHeight = 0;
     private int mSkyRGB = 255;
+    private int mDegree = 0;
+    private boolean mIsTouchMode = false;
 
     public EclipseView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -32,10 +34,12 @@ public class EclipseView extends View {
         mMoonPaint = new Paint();
         mMoonPaint.setColor(Color.parseColor(MOON_COLOR));
         mMoonPaint.setAntiAlias(true);
+        mMoonPaint.setDither(true);
 
         mEarthPaint = new Paint();
         mEarthPaint.setColor(Color.parseColor(EARTH_COLOR));
         mEarthPaint.setAntiAlias(true);
+        mEarthPaint.setDither(true);
     }
 
     @Override
@@ -57,16 +61,33 @@ public class EclipseView extends View {
     }
 
     private void drawEarth(Canvas canvas) {
+        if (!mIsTouchMode) {
+            if (mDegree > 360) {
+                mDegree = 0;
+            }
+            mEarthPoint.x = (float) (Math.cos(mDegree) * RADIUS * 2 + mWidth / 2);
+            mEarthPoint.y = (float) (Math.sin(mDegree) * RADIUS * 2 + mHeight / 2 - RADIUS * 2);
+            mDegree++;
+            calculateSkyRGB();
+            postInvalidate();
+        }
         canvas.drawCircle(mEarthPoint.x, mEarthPoint.y, RADIUS - 2, mEarthPaint);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mIsTouchMode = true;
+                break;
             case MotionEvent.ACTION_MOVE:
                 mEarthPoint.x = event.getX();
                 mEarthPoint.y = event.getY();
                 calculateSkyRGB();
+                postInvalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                mIsTouchMode = false;
                 postInvalidate();
                 break;
         }
