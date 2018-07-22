@@ -14,6 +14,7 @@ public class EclipseView extends View {
     private static final String MOON_COLOR = "#FFEB3B";
     private static final String EARTH_COLOR = "#000000";
     private static final int RADIUS = 192;
+    private static final float MOVE_SPEED = 0.02f;
 
     private Paint mMoonPaint;
     private Paint mEarthPaint;
@@ -22,7 +23,7 @@ public class EclipseView extends View {
     private int mWidth = 0;
     private int mHeight = 0;
     private int mSkyRGB = 255;
-    private int mDegree = 0;
+    private float mDegree = 0;
     private boolean mIsTouchMode = false;
 
     public EclipseView(Context context, AttributeSet attrs) {
@@ -67,7 +68,7 @@ public class EclipseView extends View {
             }
             mEarthPoint.x = (float) (Math.cos(mDegree) * RADIUS * 2 + mWidth / 2);
             mEarthPoint.y = (float) (Math.sin(mDegree) * RADIUS * 2 + mHeight / 2 - RADIUS * 2);
-            mDegree++;
+            mDegree += MOVE_SPEED;
             calculateSkyRGB();
             postInvalidate();
         }
@@ -78,7 +79,6 @@ public class EclipseView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mIsTouchMode = true;
                 break;
             case MotionEvent.ACTION_MOVE:
                 mEarthPoint.x = event.getX();
@@ -87,7 +87,7 @@ public class EclipseView extends View {
                 postInvalidate();
                 break;
             case MotionEvent.ACTION_UP:
-                mIsTouchMode = false;
+                mIsTouchMode = !mIsTouchMode;
                 postInvalidate();
                 break;
         }
