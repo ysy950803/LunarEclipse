@@ -11,17 +11,17 @@ import android.view.View;
 
 public class EclipseView extends View {
 
-    private static final String SUN_COLOR = "#FFEB3B";
+    private static final String MOON_COLOR = "#FFEB3B";
     private static final String EARTH_COLOR = "#000000";
-    private static final int RADIUS = 128;
+    private static final int RADIUS = 192;
 
-    private Paint mSunPaint;
+    private Paint mMoonPaint;
     private Paint mEarthPaint;
     private PointF mEarthPoint = new PointF(RADIUS, RADIUS);
 
     private int mWidth = 0;
     private int mHeight = 0;
-    private int mRGB = 255;
+    private int mSkyRGB = 255;
 
     public EclipseView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -29,9 +29,9 @@ public class EclipseView extends View {
     }
 
     private void init() {
-        mSunPaint = new Paint();
-        mSunPaint.setColor(Color.parseColor(SUN_COLOR));
-        mSunPaint.setAntiAlias(true);
+        mMoonPaint = new Paint();
+        mMoonPaint.setColor(Color.parseColor(MOON_COLOR));
+        mMoonPaint.setAntiAlias(true);
 
         mEarthPaint = new Paint();
         mEarthPaint.setColor(Color.parseColor(EARTH_COLOR));
@@ -44,7 +44,7 @@ public class EclipseView extends View {
         mWidth = getMeasuredWidth();
         mHeight = getMeasuredHeight();
         drawSky(canvas);
-        drawSun(canvas);
+        drawMoon(canvas);
         drawEarth(canvas);
     }
 
@@ -52,8 +52,8 @@ public class EclipseView extends View {
         canvas.drawColor(getSkyColorInt());
     }
 
-    private void drawSun(Canvas canvas) {
-        canvas.drawCircle(mWidth / 2, mHeight / 2, RADIUS, mSunPaint);
+    private void drawMoon(Canvas canvas) {
+        canvas.drawCircle(mWidth / 2, mHeight / 2, RADIUS, mMoonPaint);
     }
 
     private void drawEarth(Canvas canvas) {
@@ -63,27 +63,28 @@ public class EclipseView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                break;
             case MotionEvent.ACTION_MOVE:
-            case MotionEvent.ACTION_UP:
                 mEarthPoint.x = event.getX();
                 mEarthPoint.y = event.getY();
-                double totalOffset = RADIUS * 2;
-                double nowOffset = Math.sqrt(Math.pow(mWidth / 2 - mEarthPoint.x, 2)
-                        + Math.pow(mHeight / 2 - mEarthPoint.y, 2));
-                mRGB = (int) (255 * nowOffset / totalOffset);
-                if (mRGB > 255)
-                    mRGB = 255;
-                else if (mRGB < 24)
-                    mRGB = 24;
+                calculateSkyRGB();
                 postInvalidate();
                 break;
         }
         return true;
     }
 
+    private void calculateSkyRGB() {
+        double totalOffset = RADIUS * 2;
+        double nowOffset = Math.sqrt(Math.pow(mWidth / 2 - mEarthPoint.x, 2)
+                + Math.pow(mHeight / 2 - mEarthPoint.y, 2));
+        mSkyRGB = (int) (255 * nowOffset / totalOffset);
+        if (mSkyRGB > 255)
+            mSkyRGB = 255;
+        else if (mSkyRGB < 24)
+            mSkyRGB = 24;
+    }
+
     private int getSkyColorInt() {
-        return Color.rgb(mRGB, mRGB, mRGB);
+        return Color.rgb(mSkyRGB, mSkyRGB, mSkyRGB);
     }
 }
